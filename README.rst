@@ -17,22 +17,27 @@
 .. |ReadTheDocs| image:: https://readthedocs.org/projects/pycost/badge/?version=latest
 .. _ReadTheDocs: https://pycost.readthedocs.io/en/latest/?badge=latest
 
-pycost - A template for scikit-learn contributions
+pycost - Code for classifier evaluation
 ============================================================
 
 .. _scikit-learn: https://scikit-learn.org
+.. _sklearn-metrics: https://scikit-learn.org/stable/modules/classes.html#module-sklearn.metrics
+.. _imbalanced-learn: https://github.com/scikit-learn-contrib/imbalanced-learn
 
-**pycost** is a template project for scikit-learn_ compatible
-extensions.
+**pycost** is a scikit-learn_ compatible extension providing various evaluation-related
+classes and functions commonly used in cost-sensitive and imbalanced-class classification.
+Cost-sensitive learning generally refers to situations in which certain kinds of errors (e.g. false positives or false negatives) are more expensive than others.  In such cases many common metrics such as accuracy and the F1 metric may be misleading.  Imbalanced (or skewed) class learning refers to situations in which classes are not equally represented.  Cost-sensitive and imbalanced learning are closely related.
 
-It aids development of estimators that can be used in scikit-learn pipelines
-and (hyper)parameter search, while facilitating testing (including some API
-compliance), documentation, open source development, packaging, and continuous
-integration.
+Pycost is a contributed package and not a part of scikit-learn_.  It may be seen as an adjunct to sklearn-metrics_.  Specifically, it includes code for:
+
+- Computing and describing the ROC Convex Hull
+- Computing and describing cost curves
+- Computing the Area Under the ROC Curve (AUC) for multi-class (>2 classes) problems.
+- Averaging ROC curves.
+- TODO: Graphing the confidence intervals of ROC curves.
 
 .. _documentation: https://pycost.readthedocs.io/en/latest/quick_start.html
 
-Refer to the documentation_ to modify the template for your own scikit-learn
-contribution.
+Refer to the documentation_ for details.
 
-*Thank you for cleanly contributing to the scikit-learn ecosystem!*
+This package is primarily for *evaluation* of classifiers.  If you're searching for techniques for learning with such datasets, try the fine imbalanced-learn_ package.

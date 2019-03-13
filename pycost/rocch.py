@@ -64,7 +64,7 @@ Typical use is:
  
 """
 
-Point: namedtuple = namedtuple("Point", ("x", "y", "clfname"), defaults=(None,))
+Point: namedtuple = namedtuple( "Point", ("x", "y", "clfname"), defaults=(None,) )
 
 
 class ROCCH( object ):
@@ -77,7 +77,7 @@ class ROCCH( object ):
         """Initialize the object."""
         self.keep_intermediate = keep_intermediate
         self.classifiers: Dict[str, List[Tuple]] = { }
-        self.hull = [Point( 0, 0, "AllNeg" ), Point( 1, 1, "AllPos" )]
+        self._hull = [Point( 0, 0, "AllNeg" ), Point( 1, 1, "AllPos" )]
 
     def fit(self, clfname: str, points):
         """Fit (add) a classifier's ROC points to the ROCCH.
@@ -89,8 +89,8 @@ class ROCCH( object ):
         be an (FP, TP) pair.  TODO: Make this more general.
         :return: None
         """
-        points_instances = [Point( x, y, clfname ) for (x,y) in points]
-        points_instances.extend(self.hull )
+        points_instances = [Point( x, y, clfname ) for (x, y) in points]
+        points_instances.extend( self._hull )
         points_instances.sort( key=lambda pt: pt.x )
         hull = []
 
@@ -108,15 +108,27 @@ class ROCCH( object ):
                         hull.pop( -2 )
                 else:  # CW turn, this is convex
                     test_top = False
-        return hull
+        self._hull = hull
 
-    def hull(self):
+    @property
+    def hull(self) -> List[Tuple]:
         """
+        Return a list of points constituting the convex hull of classifiers in ROC space.
+        Returns a list of tuples (FP, TP, CLF) where each (FP,TP) is a point in ROC space
+        and CLF is the classifier producing that performance point.
+        """
+        # Defined just in case postprocessing needs to be done.
+        return self._hull
 
-        :return:
-        :rtype:
+    def dominant_classifiers(self) -> List[Tuple]:
         """
-        return self.hull
+        Return a list describing the hull in terms of the dominant classifiers.
+        Returns a list consisting of (prob_min, prob_max, clf).
+
+        :return: 
+        :rtype: 
+        """
+        pass
 
 
 def check_hull(hull):
@@ -125,9 +137,10 @@ def check_hull(hull):
     :param hull: A list of Point instances describing an ROC convex hull.
     :return: None 
     """
-    while len(hull) >= 3:
-        assert turn(*hull[0:3]) < 0, f"non-convex segment: {hull[0:3]}"
-        hull.pop(0)
+    while len( hull ) >= 3:
+        assert turn( *hull[0:3] ) < 0, f"non-convex segment: {hull[0:3]}"
+        hull.pop( 0 )
+
 
 def ROC_order(pt1, pt2: Point) -> bool:
     """Predicate for determining ROC_order for sorting.
@@ -198,10 +211,10 @@ def turn(a, b, c: Point) -> float:
     return (b.x - a.x) * (c.y - a.y) - (c.x - a.x) * (b.y - a.y)
 
 
-
-
 if __name__ == "__main__":
     import doctest
+
+
     doctest.testmod()
 
 # End of rocch.py
