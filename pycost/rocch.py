@@ -18,7 +18,6 @@ from typing import List, Dict, Tuple
 # (and locally best) classifiers in ROC space.  For more information
 # on the ROC convex hull and its uses, see the references below.
 #
-#
 # FP and TP are the False Positive (X axis) and True Positive (Y axis)
 # values for the point.
 #
@@ -64,7 +63,10 @@ Typical use is:
  
 """
 
-Point: namedtuple = namedtuple( "Point", ("x", "y", "clfname"), defaults=(None,) )
+Point: namedtuple = namedtuple( "Point", ["x", "y", "clfname"] )
+Point.__new__.__defaults__ = ("",)  # make clfname optional
+
+INFINITY: float = float( "inf" )
 
 
 class ROCCH( object ):
@@ -72,6 +74,7 @@ class ROCCH( object ):
 
     Some other stuff.
     """
+    _hull: List[Point]
 
     def __init__(self, keep_intermediate=False):
         """Initialize the object."""
@@ -82,17 +85,23 @@ class ROCCH( object ):
     def fit(self, clfname: str, points):
         """Fit (add) a classifier's ROC points to the ROCCH.
 
-        :param clfname: A classifier identifier.  This is only used to record the identity of the 
-        classifier producing the points. It can be anything, such as a (classifier, threshold) 
-        pair. 
+        :param clfname: A classifier name or identifier.  This is only used to record the
+        identity of the classifier producing the points. It can be anything, such as a
+        (classifier, threshold) pair.
+        TODO: Let clfname be a string or a list; add some way to incorporate info per point so we
+        can associate each point with a parameter.
+
         :param points: A sequence of ROC points, contained in a list or array.  Each point should
         be an (FP, TP) pair.  TODO: Make this more general.
+
         :return: None
         """
         points_instances = [Point( x, y, clfname ) for (x, y) in points]
         points_instances.extend( self._hull )
         points_instances.sort( key=lambda pt: pt.x )
         hull = []
+
+        # TODO: Make this more efficient by simply using pointers rather than append-pop.
 
         while points_instances:
             hull.append( points_instances.pop( 0 ) )
@@ -106,9 +115,30 @@ class ROCCH( object ):
                     if not self.keep_intermediate:
                         # No, treat it as if it's under the hull
                         hull.pop( -2 )
+                    else:  # Treat this as convex
+                        test_top = False
                 else:  # CW turn, this is convex
                     test_top = False
         self._hull = hull
+
+    def _check_hull(self) -> None:
+        """Check a list of hull points for convexity.
+           This is a simple utility function for testing.
+           Throws an AssertionError if a hull segment is concave or if the terminal AllNeg and
+           AllPos are not present.
+           Colinear segments (turn==0) will be considered violations unless keep_intermediate is on.
+
+        """
+        hull = self._hull
+        assert len( hull ) >= 2, "Hull is damaged"
+        assert hull[0].clfname == "AllNeg", "First hull point is not AllNeg"
+        assert hull[-1].clfname == "AllPos", "Last hull point is not AllPos"
+        for hull_idx in range( len( hull ) - 2 ):
+            segment = hull[hull_idx:hull_idx + 3]
+            turn_val = turn( *segment )
+            assert turn_val <= 0, f"Concavity in hull: {segment}"
+            if not self.keep_intermediate:
+                assert turn_val < 0, "Intermediate (colinear) point in hull"
 
     @property
     def hull(self) -> List[Tuple]:
@@ -123,23 +153,102 @@ class ROCCH( object ):
     def dominant_classifiers(self) -> List[Tuple]:
         """
         Return a list describing the hull in terms of the dominant classifiers.
-        Returns a list consisting of (prob_min, prob_max, clf).
 
-        :return: 
-        :rtype: 
+        Start at point (1,1) and work counter-clockwise down the hull to (0,0).
+        Iso-performance line slope starts at 0.0 and works up to infinity.
+
+        :return: A list consisting of (prob_min, prob_max, point) where
+        :rtype: List[Tuple]
         """
-        pass
+        slope = 0.0
+        last_point = None
+        last_slope = None
+        segment_right_boundary: Point = None
+        dominant_list: List[Tuple] = []
+        # TODO: Check for hull uninitialized.
+        point: Point
+        for point in self._hull:
+            if last_point is not None:
+                slope: float = calculate_slope( point, last_point )
+            else:
+                segment_right_boundary = point
+            if last_slope is not None:
+                if self.keep_intermediate or last_slope != slope:
+                    dominant_list.append( (last_slope, slope, segment_right_boundary) )
+                last_slope = slope
+                segment_right_boundary = point
+            else:  # last_slope is undefined
+                last_slope = slope
+            last_point = point
+        if last_slope != INFINITY:
+            slope = INFINITY
+        # Output final point
+        dominant_list.append( (last_slope, slope, segment_right_boundary) )
+        return dominant_list
+
+    def best_classifiers_for_conditions(self, class_ratio=1.0, cost_ratio=1.0):
+        """
+        Given a set of operating conditions (class and cost ratios), return best classifiers.
+
+        Given a class ratio (P/N) and a cost ratio (cost(FP),cost(FN)), return a set of
+        classifiers that will perform optimally for those conditions.  The class ratio is the
+        fraction
+        of positives per negative.  The cost ratio is the cost of a False Positive divided by the
+        cost
+        of a False Negative.
+
+        The return value will be a list of either one or two classifiers.  If the conditions
+        identify a single best classifier, the result will be simply:
+        [ (clf, 1.0) ]
+        indicating that clf should be chosen.
+
+        If the conditions are between the performance of two classifiers, the result will be:
+        [ (clf1, p1), (clf2, p2) ]
+        indicating that clf1's decisions should be sampled at a rate of p1 and clf2's at a rate
+        of p2, with p1 and p2 summing to 1.
 
 
-def check_hull(hull):
+        :param class_ratio:
+        :type class_ratio:
+        :param cost_ratio:
+        :type cost_ratio:
+        :return:
+        :rtype:
+        """
+        assert 0 < class_ratio < 1.0, "Class ratio must be between 0 and 1"
+        assert 0 < cost_ratio < 1.0, "Cost ratio must be between 0 and 1"
+
+
+def calculate_slope(pt1, pt2: Point):
+    """
+    Return the slope from pt1 to pt2, or inf if slope is infinite
+    :param pt1:
+    :type pt1: Point
+    :param pt2:
+    :type pt2: Point
+    :return:
+    :rtype: float
+    """
+    dx = pt2.x - pt1.x
+    dy = pt2.y - pt1.y
+    if dx == 0:
+        return INFINITY
+    else:
+        return dy / dx
+
+
+def _check_hull(hull):
     """Check a list of hull points for convexity.
+     This is a simple utility function for testing.
+     Throws an AssertionError if a hull segment is concave.
+     Colinear segments (turn==0) are not considered violations.
 
     :param hull: A list of Point instances describing an ROC convex hull.
     :return: None 
     """
-    while len( hull ) >= 3:
-        assert turn( *hull[0:3] ) < 0, f"non-convex segment: {hull[0:3]}"
-        hull.pop( 0 )
+    for hull_idx in range( len( hull ) - 2 ):
+        segment = hull[hull_idx:hull_idx + 3]
+        assert turn( *segment ) <= 0, f"Concavity in hull: {segment}"
 
 
 def ROC_order(pt1, pt2: Point) -> bool:

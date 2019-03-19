@@ -1,5 +1,4 @@
 #! /usr/bin/env python
-"""A template for scikit-learn compatible packages."""
 
 import codecs
 import os
@@ -12,14 +11,14 @@ with open(ver_file) as f:
     exec(f.read())
 
 DISTNAME = 'pycost'
-DESCRIPTION = 'A template for scikit-learn compatible packages.'
+DESCRIPTION = 'FIX THIS.'
 with codecs.open('README.rst', encoding='utf-8-sig') as f:
     LONG_DESCRIPTION = f.read()
-MAINTAINER = 'V. Birodkars, G. Lemaitre'
-MAINTAINER_EMAIL = 'vighneshbirodkar@nyu.edu, g.lemaitre58@gmail.com'
-URL = 'https://github.com/scikit-learn-contrib/pycost'
+MAINTAINER = 'Tom Fawcett'
+MAINTAINER_EMAIL = 'tom.fawcett@gmail.com'
+URL = 'https://github.com/tfawcett/pycost'
 LICENSE = 'new BSD'
-DOWNLOAD_URL = 'https://github.com/scikit-learn-contrib/pycost'
+DOWNLOAD_URL = 'https://github.com/tfawcett/pycost'
 VERSION = __version__
 INSTALL_REQUIRES = ['numpy', 'scipy', 'scikit-learn']
 CLASSIFIERS = ['Intended Audience :: Science/Research',
@@ -32,14 +31,11 @@ CLASSIFIERS = ['Intended Audience :: Science/Research',
                'Operating System :: POSIX',
                'Operating System :: Unix',
                'Operating System :: MacOS',
-               'Programming Language :: Python :: 2.7',
                'Programming Language :: Python :: 3.5',
                'Programming Language :: Python :: 3.6',
                'Programming Language :: Python :: 3.7']
 EXTRAS_REQUIRE = {
-    'tests': [
-        'pytest',
-        'pytest-cov'],
+    'tests': ['pytest', 'pytest-cov'],
     'docs': [
         'sphinx',
         'sphinx-gallery',
