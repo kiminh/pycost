@@ -63,24 +63,25 @@ Typical use is:
  
 """
 
-Point: namedtuple = namedtuple( "Point", ["x", "y", "clfname"] )
+Point: namedtuple = namedtuple("Point", ["x", "y", "clfname"])
 Point.__new__.__defaults__ = ("",)  # make clfname optional
 
-INFINITY: float = float( "inf" )
+INFINITY: float = float("inf")
 
 
-class ROCCH( object ):
+class ROCCH(object):
     """ROC Convex Hull.
 
     Some other stuff.
     """
+
     _hull: List[Point]
 
     def __init__(self, keep_intermediate=False):
         """Initialize the object."""
         self.keep_intermediate = keep_intermediate
-        self.classifiers: Dict[str, List[Tuple]] = { }
-        self._hull = [Point( 0, 0, "AllNeg" ), Point( 1, 1, "AllPos" )]
+        self.classifiers: Dict[str, List[Tuple]] = {}
+        self._hull = [Point(0, 0, "AllNeg"), Point(1, 1, "AllPos")]
 
     def fit(self, clfname: str, points):
         """Fit (add) a classifier's ROC points to the ROCCH.
@@ -96,25 +97,25 @@ class ROCCH( object ):
 
         :return: None
         """
-        points_instances = [Point( x, y, clfname ) for (x, y) in points]
-        points_instances.extend( self._hull )
-        points_instances.sort( key=lambda pt: pt.x )
+        points_instances = [Point(x, y, clfname) for (x, y) in points]
+        points_instances.extend(self._hull)
+        points_instances.sort(key=lambda pt: pt.x)
         hull = []
 
         # TODO: Make this more efficient by simply using pointers rather than append-pop.
 
         while points_instances:
-            hull.append( points_instances.pop( 0 ) )
+            hull.append(points_instances.pop(0))
             # Now test the top three on new_hull
             test_top = True
-            while len( hull ) >= 3 and test_top:
-                turn_dir = turn( *hull[-3:] )
+            while len(hull) >= 3 and test_top:
+                turn_dir = turn(*hull[-3:])
                 if turn_dir > 0:  # CCW turn, this introduced a concavity.
-                    hull.pop( -2 )
+                    hull.pop(-2)
                 elif turn_dir == 0:  # Co-linear, should we keep it?
                     if not self.keep_intermediate:
                         # No, treat it as if it's under the hull
-                        hull.pop( -2 )
+                        hull.pop(-2)
                     else:  # Treat this as convex
                         test_top = False
                 else:  # CW turn, this is convex
@@ -130,12 +131,12 @@ class ROCCH( object ):
 
         """
         hull = self._hull
-        assert len( hull ) >= 2, "Hull is damaged"
+        assert len(hull) >= 2, "Hull is damaged"
         assert hull[0].clfname == "AllNeg", "First hull point is not AllNeg"
         assert hull[-1].clfname == "AllPos", "Last hull point is not AllPos"
-        for hull_idx in range( len( hull ) - 2 ):
-            segment = hull[hull_idx:hull_idx + 3]
-            turn_val = turn( *segment )
+        for hull_idx in range(len(hull) - 2):
+            segment = hull[hull_idx : hull_idx + 3]
+            turn_val = turn(*segment)
             assert turn_val <= 0, f"Concavity in hull: {segment}"
             if not self.keep_intermediate:
                 assert turn_val < 0, "Intermediate (colinear) point in hull"
@@ -169,12 +170,12 @@ class ROCCH( object ):
         point: Point
         for point in self._hull:
             if last_point is not None:
-                slope: float = calculate_slope( point, last_point )
+                slope: float = calculate_slope(point, last_point)
             else:
                 segment_right_boundary = point
             if last_slope is not None:
                 if self.keep_intermediate or last_slope != slope:
-                    dominant_list.append( (last_slope, slope, segment_right_boundary) )
+                    dominant_list.append((last_slope, slope, segment_right_boundary))
                 last_slope = slope
                 segment_right_boundary = point
             else:  # last_slope is undefined
@@ -183,7 +184,7 @@ class ROCCH( object ):
         if last_slope != INFINITY:
             slope = INFINITY
         # Output final point
-        dominant_list.append( (last_slope, slope, segment_right_boundary) )
+        dominant_list.append((last_slope, slope, segment_right_boundary))
         return dominant_list
 
     def best_classifiers_for_conditions(self, class_ratio=1.0, cost_ratio=1.0):
@@ -246,9 +247,9 @@ def _check_hull(hull):
     :param hull: A list of Point instances describing an ROC convex hull.
     :return: None 
     """
-    for hull_idx in range( len( hull ) - 2 ):
-        segment = hull[hull_idx:hull_idx + 3]
-        assert turn( *segment ) <= 0, f"Concavity in hull: {segment}"
+    for hull_idx in range(len(hull) - 2):
+        segment = hull[hull_idx : hull_idx + 3]
+        assert turn(*segment) <= 0, f"Concavity in hull: {segment}"
 
 
 def ROC_order(pt1, pt2: Point) -> bool:
@@ -268,9 +269,9 @@ def compute_theta(p1, p2: Point) -> float:
 
     """
     dx = p2.x - p1.x
-    ax = abs( dx )
+    ax = abs(dx)
     dy = p2.y - p1.y
-    ay = abs( dy )
+    ay = abs(dy)
     if dx == 0 and dy == 0:
         t = 0
     else:
@@ -286,7 +287,7 @@ def compute_theta(p1, p2: Point) -> float:
 def euclidean(p1, p2: Point) -> float:
     """Compute Euclidean distance.
     """
-    return sqrt( (p1.x - p2.x)**2 + (p1.y - p2.y)**2 )
+    return sqrt((p1.x - p2.x) ** 2 + (p1.y - p2.y) ** 2)
 
 
 def turn(a, b, c: Point) -> float:
@@ -322,7 +323,6 @@ def turn(a, b, c: Point) -> float:
 
 if __name__ == "__main__":
     import doctest
-
 
     doctest.testmod()
 
