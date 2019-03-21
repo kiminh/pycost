@@ -1,6 +1,7 @@
 """Tests for `rocch` package."""
 
 from numpy.random import uniform
+import pytest
 
 from pycost import ROCCH, Point, INFINITY, turn
 
@@ -50,9 +51,13 @@ def test_rocch_single_w_intermediate():
                                             (1.0, INFINITY, Point( x=1, y=1, clfname='AllPos' ))]
 
 
-def test_rocch_exhaustive_random():
+# Instead of individual specific input and output data sets, generate a huge amount of random
+# data and ensure that ROCCH keeps the hull consistent.
+
+@pytest.mark.parametrize('keep_intermediate', [True, False])
+def test_rocch_exhaustive_random(keep_intermediate):
     for trial in range( 1000 ):
-        rocch = ROCCH()
+        rocch = ROCCH(keep_intermediate=keep_intermediate)
         for clfnum in range( 10 ):
             rocch.fit( f"{trial}-{clfnum}", list(zip( uniform( 0, 1.0, 100 ),
                                                       uniform( 0, 1.0, 100 ))))

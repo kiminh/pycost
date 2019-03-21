@@ -2,18 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="3865c2f7-fc9a-4d92-ad4d-83af584d986a" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/pycost/tests/test_rocch.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/requirements_dev.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/plot_classifier.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/plot_template.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/plot_transformer.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/pycost/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/pycost/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pycost/rocch.py" beforeDir="false" afterPath="$PROJECT_DIR$/pycost/rocch.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pycost/tests/test_common.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/pycost/tests/test_template.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/setup.cfg" beforeDir="false" afterPath="$PROJECT_DIR$/setup.cfg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/setup.py" beforeDir="false" afterPath="$PROJECT_DIR$/setup.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pycost/tests/test_rocch.py" beforeDir="false" afterPath="$PROJECT_DIR$/pycost/tests/test_rocch.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -40,8 +30,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/pycost/tests/test_rocch.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="596">
-              <caret line="57" column="79" selection-start-line="57" selection-start-column="79" selection-end-line="57" selection-end-column="79" />
+            <state relative-caret-position="434">
+              <caret line="54" column="55" selection-start-line="54" selection-start-column="55" selection-end-line="54" selection-end-column="55" />
               <folding>
                 <element signature="e#34#38#0" expanded="true" />
               </folding>
@@ -245,8 +235,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/pycost/tests/test_rocch.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="596">
-          <caret line="57" column="79" selection-start-line="57" selection-start-column="79" selection-end-line="57" selection-end-column="79" />
+        <state relative-caret-position="434">
+          <caret line="54" column="55" selection-start-line="54" selection-start-column="55" selection-end-line="54" selection-end-column="55" />
           <folding>
             <element signature="e#34#38#0" expanded="true" />
           </folding>
