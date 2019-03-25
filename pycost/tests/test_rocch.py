@@ -3,6 +3,7 @@
 from numpy.random import uniform
 import pytest
 
+
 from pycost import ROCCH, Point, INFINITY, turn
 
 

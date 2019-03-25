@@ -1,5 +1,6 @@
 numpy
 scipy
 scikit-learn
-pytest==4.3.0
+pytest
 pytest-cov==2.6.1
+matplotlib
