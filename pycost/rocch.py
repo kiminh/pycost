@@ -7,7 +7,7 @@ Metrics to calculate and manipulate the ROC Convex Hull on a classification task
 # Author: Tom Fawcett <tom.fawcett@gmail.com>
 from collections import namedtuple
 from math import sqrt
-from typing import List, Dict, Tuple
+from typing import List, Dict, Tuple, Union
 
 
 # DESCRIPTION:
@@ -147,6 +147,7 @@ class ROCCH( object ):
         # Defined just in case postprocessing needs to be done.
         return self._hull
 
+
     def dominant_classifiers(self) -> List[Tuple]:
         """
         Return a list describing the hull in terms of the dominant classifiers.
@@ -160,7 +161,7 @@ class ROCCH( object ):
         slope = 0.0
         last_point = None
         last_slope = None
-        segment_right_boundary: Point = None
+        segment_right_boundary: Union[Point,None] = None
         dominant_list: List[Tuple] = []
         # TODO: Check for hull uninitialized.
         point: Point
@@ -316,8 +317,6 @@ def turn(a, b, c: Point) -> float:
 
 if __name__ == "__main__":
     import doctest
-
-
     doctest.testmod()
 
 # End of rocch.py
